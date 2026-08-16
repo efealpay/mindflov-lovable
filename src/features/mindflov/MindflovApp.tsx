@@ -3553,10 +3553,15 @@ IMPORTANT INSTRUCTIONS:
           setShowUpgradeModal(false);
           setShowAuthModal(true);
         }}
-        onVerifyLicense={handleVerifyLicense}
-        subscriptionTier={subscriptionTier}
+        subscriptionTier={billing.tier !== 'free' ? billing.tier : subscriptionTier}
+        userId={user?.uid}
         userEmail={user?.email}
         isAnonymous={user?.isAnonymous}
+        hasSubscription={billing.status !== 'inactive'}
+        onPurchased={() => {
+          void billing.refresh();
+          setPurchaseSuccess(true);
+        }}
         globalConfig={globalConfig}
       />
       <MapModal 
