@@ -20,6 +20,8 @@ import HomeScreen from './components/HomeScreen';
 import CheatSheetModal from './components/CheatSheetModal';
 import TutorialModal from './components/TutorialModal';
 import AdminDashboard from './components/AdminDashboard';
+import { useSubscription } from '@/hooks/useSubscription';
+import { PaymentTestModeBanner } from '@/components/PaymentTestModeBanner';
 
 // --- Configuration ---
 const MODEL_NAME = "gemini-3-flash-preview";
@@ -571,6 +573,7 @@ const App = () => {
   const [genCount, setGenCount] = useState(6);
   const [maxWords, setMaxWords] = useState(3);
   const [user, setUser] = useState(null);
+  const billing = useSubscription(user?.uid);
   const [confirmReset, setConfirmReset] = useState(false);
   const [mindmaps, setMindmaps] = useState([]);
   const [currentMindmapId, setCurrentMindmapId] = useState('current');
@@ -598,6 +601,7 @@ const App = () => {
   const [globalConfig, setGlobalConfig] = useState<{ WEEKLY_LIMIT: number; PLUS_TOKEN_LIMIT: number; PRO_TOKEN_LIMIT: number; PRO_LINK?: string; PLUS_LINK?: string }>({ WEEKLY_LIMIT: DEFAULT_WEEKLY_LIMIT, PLUS_TOKEN_LIMIT: DEFAULT_PLUS_LIMIT, PRO_TOKEN_LIMIT: DEFAULT_PRO_LIMIT });
   const [dailyUsage, setDailyUsage] = useState(0);
   const [subscriptionTier, setSubscriptionTier] = useState('free'); // 'free', 'plus', 'pro'
+  const [purchaseSuccess, setPurchaseSuccess] = useState(false);
   const [tokensUsed, setTokensUsed] = useState(0);
   const [showExportModal, setShowExportModal] = useState(false);
   const [showSynthesisModal, setShowSynthesisModal] = useState(false);
@@ -1731,7 +1735,26 @@ const App = () => {
     setAnalysisLoading(true);
     setAnalysisLoadingType(type);
     
-    const selectedNodesData = nodes.filter(n => selectedNodeIds.has(n.id));
+    // Paid plan is the source of truth for feature gating and AI limits.
+  useEffect(() => {
+    if (billing.loading) return;
+    setSubscriptionTier(prev => (billing.tier !== prev ? billing.tier : prev));
+  }, [billing.tier, billing.loading]);
+
+  // Confirm the upgrade when Paddle sends the customer back to the app.
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('checkout') === 'success') {
+      setPurchaseSuccess(true);
+      void billing.refresh();
+      params.delete('checkout');
+      const next = params.toString();
+      window.history.replaceState({}, '', next ? `${window.location.pathname}?${next}` : window.location.pathname);
+    }
+  }, []);
+
+  const selectedNodesData = nodes.filter(n => selectedNodeIds.has(n.id));
     const concepts = selectedNodesData.map(n => n.label).join(", ");
     const modeInfo = MODES[currentMode];
     const primerStr = globalPrimer.trim() ? `\n\nCRITICAL PROJECT CONTEXT: ${globalPrimer.trim()} (Ensure the output adapts to this context).` : '';
@@ -2765,6 +2788,24 @@ IMPORTANT INSTRUCTIONS:
 
   return (
     <div className="flex h-screen w-full overflow-hidden bg-[#020617] text-white font-sans select-none">
+      <div className="fixed top-0 inset-x-0 z-[200]"><PaymentTestModeBanner /></div>
+      {purchaseSuccess && (
+        <div className="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+          <div className="w-full max-w-sm bg-[#0f172a] border border-emerald-500/40 rounded-2xl p-6 text-center shadow-2xl">
+            <div className="mx-auto w-12 h-12 rounded-full bg-emerald-500/20 border border-emerald-500/50 flex items-center justify-center mb-4">
+              <Check className="w-6 h-6 text-emerald-400" />
+            </div>
+            <h3 className="text-lg font-black text-white">You're on {billing.tier === 'pro' ? 'Pro' : billing.tier === 'plus' ? 'Plus' : 'a paid plan'}</h3>
+            <p className="text-sm text-slate-400 mt-2">Your higher generation limit and premium features are unlocked.</p>
+            <button
+              onClick={() => { setPurchaseSuccess(false); setShowUpgradeModal(false); }}
+              className="mt-5 w-full py-3 bg-gradient-to-r from-indigo-500 to-violet-500 hover:from-indigo-400 hover:to-violet-400 text-white font-bold rounded-lg text-sm"
+            >
+              Start creating
+            </button>
+          </div>
+        </div>
+      )}
       {currentView === 'home' ? (
         <HomeScreen 
             user={user} 
@@ -3553,10 +3594,15 @@ IMPORTANT INSTRUCTIONS:
           setShowUpgradeModal(false);
           setShowAuthModal(true);
         }}
-        onVerifyLicense={handleVerifyLicense}
-        subscriptionTier={subscriptionTier}
+        subscriptionTier={billing.tier !== 'free' ? billing.tier : subscriptionTier}
+        userId={user?.uid}
         userEmail={user?.email}
         isAnonymous={user?.isAnonymous}
+        hasSubscription={billing.status !== 'inactive'}
+        onPurchased={() => {
+          void billing.refresh();
+          setPurchaseSuccess(true);
+        }}
         globalConfig={globalConfig}
       />
       <MapModal 

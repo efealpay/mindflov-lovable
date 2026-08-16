@@ -115,10 +115,15 @@ export type Database = {
       }
       subscriptions: {
         Row: {
+          cancel_at_period_end: boolean
           created_at: string
           current_period_end: string | null
+          current_period_start: string | null
+          environment: string
           id: string
           interval: string | null
+          price_id: string | null
+          product_id: string | null
           provider: string | null
           provider_customer_id: string | null
           provider_subscription_id: string | null
@@ -128,10 +133,15 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          cancel_at_period_end?: boolean
           created_at?: string
           current_period_end?: string | null
+          current_period_start?: string | null
+          environment?: string
           id?: string
           interval?: string | null
+          price_id?: string | null
+          product_id?: string | null
           provider?: string | null
           provider_customer_id?: string | null
           provider_subscription_id?: string | null
@@ -141,10 +151,15 @@ export type Database = {
           user_id: string
         }
         Update: {
+          cancel_at_period_end?: boolean
           created_at?: string
           current_period_end?: string | null
+          current_period_start?: string | null
+          environment?: string
           id?: string
           interval?: string | null
+          price_id?: string | null
+          product_id?: string | null
           provider?: string | null
           provider_customer_id?: string | null
           provider_subscription_id?: string | null
@@ -205,6 +220,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      has_active_subscription: {
+        Args: { check_env?: string; user_uuid: string }
+        Returns: boolean
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
