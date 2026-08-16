@@ -598,6 +598,7 @@ const App = () => {
   const [globalConfig, setGlobalConfig] = useState<{ WEEKLY_LIMIT: number; PLUS_TOKEN_LIMIT: number; PRO_TOKEN_LIMIT: number; PRO_LINK?: string; PLUS_LINK?: string }>({ WEEKLY_LIMIT: DEFAULT_WEEKLY_LIMIT, PLUS_TOKEN_LIMIT: DEFAULT_PLUS_LIMIT, PRO_TOKEN_LIMIT: DEFAULT_PRO_LIMIT });
   const [dailyUsage, setDailyUsage] = useState(0);
   const [subscriptionTier, setSubscriptionTier] = useState('free'); // 'free', 'plus', 'pro'
+  const [purchaseSuccess, setPurchaseSuccess] = useState(false);
   const [tokensUsed, setTokensUsed] = useState(0);
   const [showExportModal, setShowExportModal] = useState(false);
   const [showSynthesisModal, setShowSynthesisModal] = useState(false);
