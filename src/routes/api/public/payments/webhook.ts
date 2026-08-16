@@ -71,17 +71,17 @@ async function handleSubscriptionUpdated(data: any, env: PaddleEnv) {
   const priceId = item?.price?.importMeta?.externalId;
   const tier = productId ? tierForProduct(productId) : null;
 
-  const update: Record<string, unknown> = {
+  const update: Database['public']['Tables']['subscriptions']['Update'] = {
     status,
     current_period_start: currentBillingPeriod?.startsAt ?? null,
     current_period_end: currentBillingPeriod?.endsAt ?? null,
     cancel_at_period_end: scheduledChange?.action === "cancel",
     updated_at: new Date().toISOString(),
   };
-  if (tier) update['tier'] = tier;
-  if (productId) update['product_id'] = productId;
-  if (priceId) update['price_id'] = priceId;
-  if (item?.price?.billingCycle?.interval) update['interval'] = item.price.billingCycle.interval;
+  if (tier) update.tier = tier;
+  if (productId) update.product_id = productId;
+  if (priceId) update.price_id = priceId;
+  if (item?.price?.billingCycle?.interval) update.interval = item.price.billingCycle.interval;
 
   const { data: rows } = await getSupabase()
     .from("subscriptions")
