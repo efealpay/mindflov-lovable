@@ -23,6 +23,7 @@ import OnboardingTour from './components/OnboardingTour';
 import AdminDashboard from './components/AdminDashboard';
 import { useSubscription } from '@/hooks/useSubscription';
 import { PaymentTestModeBanner } from '@/components/PaymentTestModeBanner';
+import { supabase } from '@/integrations/supabase/client';
 
 // --- Configuration ---
 const MODEL_NAME = "gemini-3-flash-preview";
