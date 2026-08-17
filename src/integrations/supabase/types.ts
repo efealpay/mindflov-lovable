@@ -14,6 +14,57 @@ export type Database = {
   }
   public: {
     Tables: {
+      ai_events: {
+        Row: {
+          action_type: string
+          context_role: string | null
+          created_at: string
+          error_message: string | null
+          id: string
+          latency_ms: number | null
+          map_id: string | null
+          mode_key: string | null
+          mode_label: string | null
+          model: string | null
+          success: boolean
+          tokens_in: number
+          tokens_out: number
+          user_id: string | null
+        }
+        Insert: {
+          action_type?: string
+          context_role?: string | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          latency_ms?: number | null
+          map_id?: string | null
+          mode_key?: string | null
+          mode_label?: string | null
+          model?: string | null
+          success?: boolean
+          tokens_in?: number
+          tokens_out?: number
+          user_id?: string | null
+        }
+        Update: {
+          action_type?: string
+          context_role?: string | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          latency_ms?: number | null
+          map_id?: string | null
+          mode_key?: string | null
+          mode_label?: string | null
+          model?: string | null
+          success?: boolean
+          tokens_in?: number
+          tokens_out?: number
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       app_config: {
         Row: {
           key: string
@@ -80,8 +131,16 @@ export type Database = {
           display_name: string | null
           email: string | null
           id: string
+          last_active_at: string | null
           last_token_reset: number | null
           license_key: string | null
+          milestone_first_expansion: boolean
+          milestone_first_export: boolean
+          milestone_first_map: boolean
+          milestone_first_synthesis: boolean
+          onboarding_completed: boolean
+          onboarding_skipped: boolean
+          onboarding_step: number
           subscription_start: number | null
           subscription_tier: string
           tokens_used: number
@@ -92,8 +151,16 @@ export type Database = {
           display_name?: string | null
           email?: string | null
           id: string
+          last_active_at?: string | null
           last_token_reset?: number | null
           license_key?: string | null
+          milestone_first_expansion?: boolean
+          milestone_first_export?: boolean
+          milestone_first_map?: boolean
+          milestone_first_synthesis?: boolean
+          onboarding_completed?: boolean
+          onboarding_skipped?: boolean
+          onboarding_step?: number
           subscription_start?: number | null
           subscription_tier?: string
           tokens_used?: number
@@ -104,8 +171,16 @@ export type Database = {
           display_name?: string | null
           email?: string | null
           id?: string
+          last_active_at?: string | null
           last_token_reset?: number | null
           license_key?: string | null
+          milestone_first_expansion?: boolean
+          milestone_first_export?: boolean
+          milestone_first_map?: boolean
+          milestone_first_synthesis?: boolean
+          onboarding_completed?: boolean
+          onboarding_skipped?: boolean
+          onboarding_step?: number
           subscription_start?: number | null
           subscription_tier?: string
           tokens_used?: number
