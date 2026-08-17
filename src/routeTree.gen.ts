@@ -10,18 +10,28 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AccountRouteImport } from './routes/account'
 import { Route as AppRouteImport } from './routes/app'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as ContextsRouteImport } from './routes/contexts'
 import { Route as GenerationModesRouteImport } from './routes/generation-modes'
 import { Route as HowItWorksRouteImport } from './routes/how-it-works'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
+import { Route as ForContentCreatorsRouteImport } from './routes/for.content-creators'
+import { Route as ForDesignersRouteImport } from './routes/for.designers'
+import { Route as ForMarketersRouteImport } from './routes/for.marketers'
 import { Route as ApiAiGenerateRouteImport } from './routes/api/ai/generate'
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AccountRoute = AccountRouteImport.update({
+  id: '/account',
+  path: '/account',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AppRoute = AppRouteImport.update({
@@ -32,6 +42,11 @@ const AppRoute = AppRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContextsRoute = ContextsRouteImport.update({
+  id: '/contexts',
+  path: '/contexts',
   getParentRoute: () => rootRouteImport,
 } as any)
 const GenerationModesRoute = GenerationModesRouteImport.update({
@@ -54,6 +69,21 @@ const AuthCallbackRoute = AuthCallbackRouteImport.update({
   path: '/callback',
   getParentRoute: () => AuthRoute,
 } as any)
+const ForContentCreatorsRoute = ForContentCreatorsRouteImport.update({
+  id: '/for/content-creators',
+  path: '/for/content-creators',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ForDesignersRoute = ForDesignersRouteImport.update({
+  id: '/for/designers',
+  path: '/for/designers',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ForMarketersRoute = ForMarketersRouteImport.update({
+  id: '/for/marketers',
+  path: '/for/marketers',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiAiGenerateRoute = ApiAiGenerateRouteImport.update({
   id: '/api/ai/generate',
   path: '/api/ai/generate',
@@ -68,35 +98,50 @@ const ApiPublicPaymentsWebhookRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/account': typeof AccountRoute
   '/app': typeof AppRoute
   '/auth': typeof AuthRouteWithChildren
+  '/contexts': typeof ContextsRoute
   '/generation-modes': typeof GenerationModesRoute
   '/how-it-works': typeof HowItWorksRoute
   '/reset-password': typeof ResetPasswordRoute
   '/auth/callback': typeof AuthCallbackRoute
+  '/for/content-creators': typeof ForContentCreatorsRoute
+  '/for/designers': typeof ForDesignersRoute
+  '/for/marketers': typeof ForMarketersRoute
   '/api/ai/generate': typeof ApiAiGenerateRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/account': typeof AccountRoute
   '/app': typeof AppRoute
   '/auth': typeof AuthRouteWithChildren
+  '/contexts': typeof ContextsRoute
   '/generation-modes': typeof GenerationModesRoute
   '/how-it-works': typeof HowItWorksRoute
   '/reset-password': typeof ResetPasswordRoute
   '/auth/callback': typeof AuthCallbackRoute
+  '/for/content-creators': typeof ForContentCreatorsRoute
+  '/for/designers': typeof ForDesignersRoute
+  '/for/marketers': typeof ForMarketersRoute
   '/api/ai/generate': typeof ApiAiGenerateRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/account': typeof AccountRoute
   '/app': typeof AppRoute
   '/auth': typeof AuthRouteWithChildren
+  '/contexts': typeof ContextsRoute
   '/generation-modes': typeof GenerationModesRoute
   '/how-it-works': typeof HowItWorksRoute
   '/reset-password': typeof ResetPasswordRoute
   '/auth/callback': typeof AuthCallbackRoute
+  '/for/content-creators': typeof ForContentCreatorsRoute
+  '/for/designers': typeof ForDesignersRoute
+  '/for/marketers': typeof ForMarketersRoute
   '/api/ai/generate': typeof ApiAiGenerateRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
@@ -104,45 +149,65 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/account'
     | '/app'
     | '/auth'
+    | '/contexts'
     | '/generation-modes'
     | '/how-it-works'
     | '/reset-password'
     | '/auth/callback'
+    | '/for/content-creators'
+    | '/for/designers'
+    | '/for/marketers'
     | '/api/ai/generate'
     | '/api/public/payments/webhook'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/account'
     | '/app'
     | '/auth'
+    | '/contexts'
     | '/generation-modes'
     | '/how-it-works'
     | '/reset-password'
     | '/auth/callback'
+    | '/for/content-creators'
+    | '/for/designers'
+    | '/for/marketers'
     | '/api/ai/generate'
     | '/api/public/payments/webhook'
   id:
     | '__root__'
     | '/'
+    | '/account'
     | '/app'
     | '/auth'
+    | '/contexts'
     | '/generation-modes'
     | '/how-it-works'
     | '/reset-password'
     | '/auth/callback'
+    | '/for/content-creators'
+    | '/for/designers'
+    | '/for/marketers'
     | '/api/ai/generate'
     | '/api/public/payments/webhook'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AccountRoute: typeof AccountRoute
   AppRoute: typeof AppRoute
   AuthRoute: typeof AuthRouteWithChildren
+  ContextsRoute: typeof ContextsRoute
   GenerationModesRoute: typeof GenerationModesRoute
   HowItWorksRoute: typeof HowItWorksRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
+  ForContentCreatorsRoute: typeof ForContentCreatorsRoute
+  ForDesignersRoute: typeof ForDesignersRoute
+  ForMarketersRoute: typeof ForMarketersRoute
   ApiAiGenerateRoute: typeof ApiAiGenerateRoute
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
 }
@@ -154,6 +219,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/account': {
+      id: '/account'
+      path: '/account'
+      fullPath: '/account'
+      preLoaderRoute: typeof AccountRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/app': {
@@ -168,6 +240,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contexts': {
+      id: '/contexts'
+      path: '/contexts'
+      fullPath: '/contexts'
+      preLoaderRoute: typeof ContextsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/generation-modes': {
@@ -198,6 +277,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthCallbackRouteImport
       parentRoute: typeof AuthRoute
     }
+    '/for/content-creators': {
+      id: '/for/content-creators'
+      path: '/for/content-creators'
+      fullPath: '/for/content-creators'
+      preLoaderRoute: typeof ForContentCreatorsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/for/designers': {
+      id: '/for/designers'
+      path: '/for/designers'
+      fullPath: '/for/designers'
+      preLoaderRoute: typeof ForDesignersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/for/marketers': {
+      id: '/for/marketers'
+      path: '/for/marketers'
+      fullPath: '/for/marketers'
+      preLoaderRoute: typeof ForMarketersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/ai/generate': {
       id: '/api/ai/generate'
       path: '/api/ai/generate'
@@ -227,11 +327,16 @@ const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AccountRoute: AccountRoute,
   AppRoute: AppRoute,
   AuthRoute: AuthRouteWithChildren,
+  ContextsRoute: ContextsRoute,
   GenerationModesRoute: GenerationModesRoute,
   HowItWorksRoute: HowItWorksRoute,
   ResetPasswordRoute: ResetPasswordRoute,
+  ForContentCreatorsRoute: ForContentCreatorsRoute,
+  ForDesignersRoute: ForDesignersRoute,
+  ForMarketersRoute: ForMarketersRoute,
   ApiAiGenerateRoute: ApiAiGenerateRoute,
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
 }
