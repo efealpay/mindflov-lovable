@@ -105,8 +105,68 @@ with real alt text.
   handling for existing links.
 - Charts reuse the Recharts setup already in the project.
 
+---
+
+## Part 4 — Account management and user flow hardening
+
+The uploaded build was a test harness, so several account paths are stubbed or misleading. Fixes:
+
+**Auth and entry**
+- A real `/auth` page (sign in, sign up, forgot password, Google) usable directly and shareable, with the
+  modal kept for in-canvas sign-in prompts. Clear inline error text for wrong password, existing email,
+  weak password, and unconfirmed email instead of raw provider messages.
+- Email confirmation handled properly: after signup an explicit "check your inbox" state, a resend
+  option, and a public `/auth/callback` landing that returns the user to where they started.
+- Password reset completion screen — today reset only sends the email; there is no page to actually set
+  the new password.
+- Guest mode gets one consistent behaviour: guests can explore a local scratch map, every persistent
+  action prompts sign-in, and their in-progress map is carried over after signing up instead of lost.
+
+**Account settings (rewrite of the Account tab, promoted to a real `/account` page)**
+- Profile: editable display name, email shown with a verified change-email flow, join date, tier badge.
+- Security: change password with current-password check, sign out, sign out everywhere.
+- Billing: current plan and interval, renewal or cancellation date, "cancels at period end" made
+  explicit, manage-billing portal link, upgrade/downgrade, invoice history.
+- Usage: generations used this week vs limit with reset time, lifetime tokens, map count.
+- Data: export all maps as JSON; delete account with typed confirmation, an explicit list of what is
+  removed, and correct handling when a subscription is still active.
+- The debug tier switcher stops being a hardcoded email check and becomes admin-role gated, so ordinary
+  users can no longer reach it.
+
+**Reliability gaps to close**
+- Cloud save/load failures currently pass silently in places — every cloud action gets success/failure
+  feedback plus a "saving…/saved" indicator.
+- Expired sessions show a re-authenticate prompt instead of silently failing writes.
+- Free-limit blocks explain the limit and reset time and route into upgrade rather than dead-ending.
+
+## Part 5 — Onboarding tutorial, redone
+
+Current flaws: the walkthrough fires on first canvas open but marks itself seen immediately, so an
+interrupted run never returns; state is localStorage-only (new device re-onboards, returning users get
+it again); it targets elements that may not be mounted yet; and some copy no longer matches the UI.
+
+New behaviour:
+- Onboarding state lives on the user profile (completed / skipped / current step), so it follows the
+  account across devices and is only marked done when the user finishes or explicitly skips.
+- Canvas-only: never on the home dashboard, marketing pages, or account/admin screens, and it waits
+  until the canvas and each step's target element are actually mounted before starting.
+- Two layers:
+  1. A short welcome card on first sign-in (home dashboard): what MindFlov does, plus one button that
+     creates a first map from a suggested seed and hands off to the canvas walkthrough.
+  2. The canvas walkthrough, rewritten for the current interface: seed a concept, pick a context role,
+     choose a generation mode, expand a node with AI, read the usage meter, run neural analysis, save,
+     export. Steps touching paid features name the tier instead of implying availability.
+- Interaction-aware: a step can wait for the real action (e.g. an actual node expansion) rather than only
+  "Next", with skip anytime, progress dots, and back navigation.
+- Re-runnable from the sidebar help button and from `/account`, plus a compact getting-started checklist
+  (first map, first expansion, first synthesis, first export) that shows progress until complete.
+- Respects reduced motion, keyboard dismissible, and never blocks the canvas at mobile widths.
+
 ## Suggested build order
 
-1. Telemetry + migration (so data starts accumulating immediately).
-2. Admin panel on top of that data.
-3. Marketing site and the `/app` move.
+1. Telemetry + migration (data starts accumulating immediately); the same migration adds the onboarding
+   fields on the profile.
+2. Account management and user-flow fixes (auth pages, `/account`, feedback on cloud actions).
+3. Onboarding tutorial rebuild.
+4. Admin panel on top of the telemetry data.
+5. Marketing site and the `/app` move.
