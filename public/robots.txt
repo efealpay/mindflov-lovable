@@ -12,3 +12,10 @@ Allow: /
 
 User-agent: *
 Allow: /
+Disallow: /admin
+Disallow: /account
+Disallow: /auth
+Disallow: /reset-password
+Disallow: /api/
+
+Sitemap: /sitemap.xml
