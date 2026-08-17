@@ -774,7 +774,13 @@ const App = () => {
       }
     };
     initAuth();
-    const unsubscribe = onAuthStateChanged(auth, setUser);
+    const unsubscribe = onAuthStateChanged(auth, (nextUser: any) => {
+      setUser(nextUser);
+      // Track activity so the admin dashboard can report active users.
+      if (nextUser?.uid) {
+        void supabase.from('profiles').update({ last_active_at: new Date().toISOString() }).eq('id', nextUser.uid);
+      }
+    });
 
     return () => unsubscribe();
   }, []);
@@ -2838,7 +2844,7 @@ IMPORTANT INSTRUCTIONS:
             onSignOut={() => signOut(auth)}
             onFeedback={() => window.open('https://efealpay.notion.site/c281d325cbba47949dd4de12ad7b5539?pvs=105', '_blank')}
             isAdmin={isAdmin}
-            onShowAdmin={() => setShowAdminDashboard(true)}
+            onShowAdmin={() => { window.location.href = '/admin'; }}
         />
       ) : (
         <>
