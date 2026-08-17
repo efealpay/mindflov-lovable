@@ -102,7 +102,7 @@ export const listUsersForAdmin = createServerFn({ method: "POST" })
     const adminIds = new Set(
       (roles.data ?? []).filter((row) => row.role === "admin").map((row) => row.user_id),
     );
-    const subByUser = new Map<string, (typeof subs.data)[number]>();
+    const subByUser = new Map<string, NonNullable<typeof subs.data>[number]>();
     for (const row of subs.data ?? []) {
       if (!subByUser.has(row.user_id)) subByUser.set(row.user_id, row);
     }
