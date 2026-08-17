@@ -88,8 +88,9 @@ export async function restartOnboarding(userId: string) {
 
 export async function markMilestone(userId: string, milestone: MilestoneKey) {
   const column = MILESTONE_COLUMN[milestone];
+  const patch: Record<string, boolean> = { [column]: true };
   await supabase
     .from("profiles")
-    .update({ [column]: true })
+    .update(patch as never)
     .eq("id", userId);
 }
