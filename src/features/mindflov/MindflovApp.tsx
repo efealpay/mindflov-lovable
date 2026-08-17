@@ -2868,7 +2868,7 @@ IMPORTANT INSTRUCTIONS:
                  {subscriptionTier === 'plus' && <span className="text-[9px] bg-indigo-500/20 text-indigo-400 px-1.5 py-0.5 rounded border border-indigo-500/30 uppercase font-bold">PLUS</span>}
                  {subscriptionTier === 'pro' && <span className="text-[9px] bg-emerald-500/20 text-emerald-400 px-1.5 py-0.5 rounded border border-emerald-500/30 uppercase font-bold">PRO</span>}
               </div>
-            {subscriptionTier === 'free' && isDebugMode && (
+            {subscriptionTier === 'free' && (
               <div className="space-y-2 mb-2">
                 <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest text-white/40">
                   <span>Weekly Usage</span>
