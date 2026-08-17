@@ -778,16 +778,13 @@ const App = () => {
     return () => unsubscribe();
   }, []);
 
-  // Initial Tutorial Check: Only show when a canvas is open
+  // The step-by-step onboarding tour (OnboardingTour) handles first-run guidance on
+  // the canvas; the tutorial reference modal stays available from the toolbar button.
+  const [hasExportedOnce, setHasExportedOnce] = useState(false);
   useEffect(() => {
-    if (currentMindmapId) {
-      const hasSeenTutorialCanvas = localStorage.getItem('__mindflow_tutorial_seen_canvas');
-      if (!hasSeenTutorialCanvas) {
-        setTimeout(() => setShowTutorialModal(true), 500);
-        localStorage.setItem('__mindflow_tutorial_seen_canvas', 'true');
-      }
-    }
-  }, [currentMindmapId]);
+    if (showExportModal) setHasExportedOnce(true);
+  }, [showExportModal]);
+
 
   const fetchMindmapsList = async () => {
     if (!user || !db) return;
