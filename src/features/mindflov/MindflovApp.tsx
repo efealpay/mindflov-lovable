@@ -19,6 +19,7 @@ import SettingsModal from './components/SettingsModal';
 import HomeScreen from './components/HomeScreen';
 import CheatSheetModal from './components/CheatSheetModal';
 import TutorialModal from './components/TutorialModal';
+import OnboardingTour from './components/OnboardingTour';
 import AdminDashboard from './components/AdminDashboard';
 import { useSubscription } from '@/hooks/useSubscription';
 import { PaymentTestModeBanner } from '@/components/PaymentTestModeBanner';
