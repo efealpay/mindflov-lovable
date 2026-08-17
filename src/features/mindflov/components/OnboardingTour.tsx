@@ -90,11 +90,14 @@ const STEPS: Step[] = [
 export default function OnboardingTour({
   userId,
   active,
+  paused,
   signals,
   onOpenUpgrade,
 }: {
   userId: string | null | undefined;
   active: boolean;
+  /** Hide the card while a blocking modal is open, without losing progress. */
+  paused?: boolean;
   signals: OnboardingSignals;
   onOpenUpgrade?: () => void;
 }) {
@@ -150,18 +153,18 @@ export default function OnboardingTour({
 
   // Auto-advance the moment the user performs the required action.
   useEffect(() => {
-    if (!ready || !visible || !active || !current?.waitFor) return;
+    if (!ready || !visible || !active || paused || !current?.waitFor) return;
     if (!satisfied) return;
     const timeout = setTimeout(() => void advance(step), 900);
     return () => clearTimeout(timeout);
-  }, [ready, visible, active, current, satisfied, step, advance]);
+  }, [ready, visible, active, paused, current, satisfied, step, advance]);
 
   const dismiss = async () => {
     setVisible(false);
     if (userId) await skipOnboarding(userId);
   };
 
-  if (!ready || !visible || !active || !current) return null;
+  if (!ready || !visible || !active || paused || !current) return null;
 
   const Icon = current.icon;
 

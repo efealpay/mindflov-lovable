@@ -3647,6 +3647,7 @@ IMPORTANT INSTRUCTIONS:
       <OnboardingTour
         userId={user?.uid}
         active={currentView === 'canvas'}
+        paused={showPrimerModal || showMapModal || showUpgradeModal || showSettingsModal || showTutorialModal || showSynthesisModal}
         signals={{
           hasSeed: nodes.length > 0,
           hasExpanded: links.length > 0,
