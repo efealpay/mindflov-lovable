@@ -45,6 +45,13 @@ export const Route = createFileRoute("/api/ai/generate")({
           | {
               model?: string;
               contents?: string;
+              telemetry?: {
+                actionType?: string;
+                contextRole?: string;
+                modeKey?: string;
+                modeLabel?: string;
+                mapId?: string;
+              };
               config?: {
                 systemInstruction?: string;
                 responseMimeType?: string;
@@ -62,6 +69,40 @@ export const Route = createFileRoute("/api/ai/generate")({
         if (!apiKey) return json({ error: "AI is not configured for this project." }, 500);
 
         const modelId = (body.model && MODEL_MAP[body.model]) || DEFAULT_MODEL;
+        const userId = userData.user.id;
+        const startedAt = Date.now();
+
+        /** Records one analytics row. Never blocks or fails the response. */
+        const logEvent = async (fields: {
+          tokensIn?: number;
+          tokensOut?: number;
+          success: boolean;
+          errorMessage?: string;
+        }) => {
+          try {
+            const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+            await supabaseAdmin.from("ai_events").insert({
+              user_id: userId,
+              action_type: body.telemetry?.actionType ?? "expand",
+              context_role: body.telemetry?.contextRole ?? null,
+              mode_key: body.telemetry?.modeKey ?? null,
+              mode_label: body.telemetry?.modeLabel ?? null,
+              model: modelId,
+              tokens_in: fields.tokensIn ?? 0,
+              tokens_out: fields.tokensOut ?? 0,
+              latency_ms: Date.now() - startedAt,
+              success: fields.success,
+              error_message: fields.errorMessage ?? null,
+              map_id: body.telemetry?.mapId ?? null,
+            });
+            await supabaseAdmin
+              .from("profiles")
+              .update({ last_active_at: new Date().toISOString() })
+              .eq("id", userId);
+          } catch (logError) {
+            console.error("ai_events log failed", logError);
+          }
+        };
         const wantsJson = body.config?.responseMimeType === "application/json";
 
         const systemParts: string[] = [];
@@ -94,11 +135,18 @@ export const Route = createFileRoute("/api/ai/generate")({
           const text = await result.text;
           const usage = await result.usage;
 
+          await logEvent({
+            tokensIn: usage?.inputTokens ?? 0,
+            tokensOut: usage?.outputTokens ?? 0,
+            success: true,
+          });
+
           return json({ text, tokens: usage?.totalTokens ?? 0 });
         } catch (error) {
           const message = error instanceof Error ? error.message : "AI request failed";
           const status = /rate|429/i.test(message) ? 429 : /402|credit/i.test(message) ? 402 : 500;
           console.error("AI generate failed:", message);
+          await logEvent({ success: false, errorMessage: message.slice(0, 500) });
           return json({ error: message }, status);
         }
       },
