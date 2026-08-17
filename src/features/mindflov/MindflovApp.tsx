@@ -1704,6 +1704,7 @@ const App = () => {
       const { data, tokens } = await callGeminiWithBackoff(async () => {
           const response = await generateWithAi({
               model: modelSettings.expansion,
+              actionType: 'expand',
               contents: `Generate related concepts for: ${concepts.join(' + ')}${contextStr}`,
               config: {
                   systemInstruction,
@@ -1783,6 +1784,7 @@ const App = () => {
       const { text: result, tokens } = await callGeminiWithBackoff(async () => {
           const response = await generateWithAi({
             model: type === 'insight' ? modelSettings.insight : modelSettings.plan,
+            actionType: type === 'insight' ? 'insight' : 'plan',
             contents: prompt
           });
           const tokens = response.tokens || 0;
@@ -1830,6 +1832,7 @@ const App = () => {
       const result = await callGeminiWithBackoff(async () => {
           const response = await generateWithAi({
               model: modelSettings.neural,
+              actionType: 'neural_analysis',
               contents: prompt,
               config: {
                 systemInstruction,
@@ -2046,6 +2049,7 @@ Return a JSON object with:
       const { text: result, tokens } = await callGeminiWithBackoff(async () => {
           const response = await generateWithAi({
             model: modelSettings.expansion,
+            actionType: 'converge',
             contents: prompt,
             responseSchema: {
                 type: Type.OBJECT,
@@ -2214,6 +2218,7 @@ IMPORTANT INSTRUCTIONS:
       const { text } = await callGeminiWithBackoff(async () => {
         const response = await generateWithAi({
           model: modelSettings.expansion,
+          actionType: 'synthesis',
           contents: prompt
         });
         return { text: response.text, tokens: response.tokens || 0 };
