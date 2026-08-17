@@ -19,6 +19,7 @@ import SettingsModal from './components/SettingsModal';
 import HomeScreen from './components/HomeScreen';
 import CheatSheetModal from './components/CheatSheetModal';
 import TutorialModal from './components/TutorialModal';
+import OnboardingTour from './components/OnboardingTour';
 import AdminDashboard from './components/AdminDashboard';
 import { useSubscription } from '@/hooks/useSubscription';
 import { PaymentTestModeBanner } from '@/components/PaymentTestModeBanner';
@@ -778,16 +779,13 @@ const App = () => {
     return () => unsubscribe();
   }, []);
 
-  // Initial Tutorial Check: Only show when a canvas is open
+  // The step-by-step onboarding tour (OnboardingTour) handles first-run guidance on
+  // the canvas; the tutorial reference modal stays available from the toolbar button.
+  const [hasExportedOnce, setHasExportedOnce] = useState(false);
   useEffect(() => {
-    if (currentMindmapId) {
-      const hasSeenTutorialCanvas = localStorage.getItem('__mindflow_tutorial_seen_canvas');
-      if (!hasSeenTutorialCanvas) {
-        setTimeout(() => setShowTutorialModal(true), 500);
-        localStorage.setItem('__mindflow_tutorial_seen_canvas', 'true');
-      }
-    }
-  }, [currentMindmapId]);
+    if (showExportModal) setHasExportedOnce(true);
+  }, [showExportModal]);
+
 
   const fetchMindmapsList = async () => {
     if (!user || !db) return;
@@ -1642,7 +1640,20 @@ const App = () => {
   };
 
   const generateWithAi = async (params: any) => {
-    return await callAiEndpoint(params, abortControllerRef.current?.signal ?? null);
+    const modeInfo = MODES[currentMode];
+    const enriched = {
+      ...params,
+      telemetry: {
+        actionType: params?.actionType ?? 'expand',
+        contextRole: globalRole,
+        modeKey: currentMode,
+        modeLabel: modeInfo?.label ?? currentMode,
+        mapId: currentMindmapId,
+        ...(params?.telemetry ?? {}),
+      },
+    };
+    delete enriched.actionType;
+    return await callAiEndpoint(enriched, abortControllerRef.current?.signal ?? null);
   };
 
   const fetchKeywords = async (concepts, includeDetail = false, parentContextLabels = []) => {
@@ -1691,6 +1702,7 @@ const App = () => {
       const { data, tokens } = await callGeminiWithBackoff(async () => {
           const response = await generateWithAi({
               model: modelSettings.expansion,
+              actionType: 'expand',
               contents: `Generate related concepts for: ${concepts.join(' + ')}${contextStr}`,
               config: {
                   systemInstruction,
@@ -1770,6 +1782,7 @@ const App = () => {
       const { text: result, tokens } = await callGeminiWithBackoff(async () => {
           const response = await generateWithAi({
             model: type === 'insight' ? modelSettings.insight : modelSettings.plan,
+            actionType: type === 'insight' ? 'insight' : 'plan',
             contents: prompt
           });
           const tokens = response.tokens || 0;
@@ -1817,6 +1830,7 @@ const App = () => {
       const result = await callGeminiWithBackoff(async () => {
           const response = await generateWithAi({
               model: modelSettings.neural,
+              actionType: 'neural_analysis',
               contents: prompt,
               config: {
                 systemInstruction,
@@ -2033,6 +2047,7 @@ Return a JSON object with:
       const { text: result, tokens } = await callGeminiWithBackoff(async () => {
           const response = await generateWithAi({
             model: modelSettings.expansion,
+            actionType: 'converge',
             contents: prompt,
             responseSchema: {
                 type: Type.OBJECT,
@@ -2201,6 +2216,7 @@ IMPORTANT INSTRUCTIONS:
       const { text } = await callGeminiWithBackoff(async () => {
         const response = await generateWithAi({
           model: modelSettings.expansion,
+          actionType: 'synthesis',
           contents: prompt
         });
         return { text: response.text, tokens: response.tokens || 0 };
@@ -2835,6 +2851,7 @@ IMPORTANT INSTRUCTIONS:
                 <div className="flex bg-white/5 border border-white/10 rounded-xl p-1 gap-1">
                    <button onClick={() => setShowCheatSheetModal(true)} className="flex-1 py-2 flex items-center justify-center rounded-lg hover:bg-white/10 transition-colors text-white/70 hover:text-white" title="Keyboard Shortcuts"><HelpCircle className="w-4 h-4" /></button>
                    <button onClick={() => setShowTutorialModal(true)} className="flex-1 py-2 flex items-center justify-center rounded-lg hover:bg-white/10 transition-colors text-white/70 hover:text-white" title="Tutorial"><BookOpen className="w-4 h-4" /></button>
+                   <a href="/account" className="flex-1 py-2 flex items-center justify-center rounded-lg hover:bg-white/10 transition-colors text-white/70 hover:text-white" title="Account & billing"><Settings className="w-4 h-4" /></a>
                    <div className="w-[1px] bg-white/10 my-1 mx-1" />
                    <div className="flex-[2] py-2 flex items-center justify-center rounded-lg text-[10px] font-bold tracking-widest text-white/40 uppercase">
                       {saveLoading ? 'Saving...' : 'Saved'}
@@ -2852,7 +2869,7 @@ IMPORTANT INSTRUCTIONS:
                  {subscriptionTier === 'plus' && <span className="text-[9px] bg-indigo-500/20 text-indigo-400 px-1.5 py-0.5 rounded border border-indigo-500/30 uppercase font-bold">PLUS</span>}
                  {subscriptionTier === 'pro' && <span className="text-[9px] bg-emerald-500/20 text-emerald-400 px-1.5 py-0.5 rounded border border-emerald-500/30 uppercase font-bold">PRO</span>}
               </div>
-            {subscriptionTier === 'free' && isDebugMode && (
+            {subscriptionTier === 'free' && (
               <div className="space-y-2 mb-2">
                 <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest text-white/40">
                   <span>Weekly Usage</span>
@@ -3626,6 +3643,17 @@ IMPORTANT INSTRUCTIONS:
       <CheatSheetModal
         isOpen={showCheatSheetModal}
         onClose={() => setShowCheatSheetModal(false)}
+      />
+      <OnboardingTour
+        userId={user?.uid}
+        active={currentView === 'canvas'}
+        signals={{
+          hasSeed: nodes.length > 0,
+          hasExpanded: links.length > 0,
+          hasSynthesized: Boolean(synthesizedDoc),
+          hasExported: hasExportedOnce,
+        }}
+        onOpenUpgrade={() => setShowUpgradeModal(true)}
       />
       <TutorialModal
         isOpen={showTutorialModal}
