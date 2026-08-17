@@ -2851,6 +2851,7 @@ IMPORTANT INSTRUCTIONS:
                 <div className="flex bg-white/5 border border-white/10 rounded-xl p-1 gap-1">
                    <button onClick={() => setShowCheatSheetModal(true)} className="flex-1 py-2 flex items-center justify-center rounded-lg hover:bg-white/10 transition-colors text-white/70 hover:text-white" title="Keyboard Shortcuts"><HelpCircle className="w-4 h-4" /></button>
                    <button onClick={() => setShowTutorialModal(true)} className="flex-1 py-2 flex items-center justify-center rounded-lg hover:bg-white/10 transition-colors text-white/70 hover:text-white" title="Tutorial"><BookOpen className="w-4 h-4" /></button>
+                   <a href="/account" className="flex-1 py-2 flex items-center justify-center rounded-lg hover:bg-white/10 transition-colors text-white/70 hover:text-white" title="Account & billing"><Settings className="w-4 h-4" /></a>
                    <div className="w-[1px] bg-white/10 my-1 mx-1" />
                    <div className="flex-[2] py-2 flex items-center justify-center rounded-lg text-[10px] font-bold tracking-widest text-white/40 uppercase">
                       {saveLoading ? 'Saving...' : 'Saved'}
