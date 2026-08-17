@@ -17,9 +17,19 @@ export const Type = {
   OBJECT: "OBJECT",
 } as const;
 
+/** Analytics metadata recorded server-side for every generation. */
+export interface GenerateTelemetry {
+  actionType?: string;
+  contextRole?: string;
+  modeKey?: string;
+  modeLabel?: string;
+  mapId?: string;
+}
+
 export interface GenerateParams {
   model?: string;
   contents: string;
+  telemetry?: GenerateTelemetry;
   config?: {
     systemInstruction?: string;
     responseMimeType?: string;
@@ -27,6 +37,7 @@ export interface GenerateParams {
     temperature?: number;
   };
 }
+
 
 export interface GenerateResult {
   text: string;
