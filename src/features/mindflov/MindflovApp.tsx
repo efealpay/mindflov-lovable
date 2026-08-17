@@ -3642,6 +3642,17 @@ IMPORTANT INSTRUCTIONS:
         isOpen={showCheatSheetModal}
         onClose={() => setShowCheatSheetModal(false)}
       />
+      <OnboardingTour
+        userId={user?.uid}
+        active={currentView === 'canvas'}
+        signals={{
+          hasSeed: nodes.length > 0,
+          hasExpanded: links.length > 0,
+          hasSynthesized: Boolean(synthesizedDoc),
+          hasExported: hasExportedOnce,
+        }}
+        onOpenUpgrade={() => setShowUpgradeModal(true)}
+      />
       <TutorialModal
         isOpen={showTutorialModal}
         onClose={() => setShowTutorialModal(false)}
