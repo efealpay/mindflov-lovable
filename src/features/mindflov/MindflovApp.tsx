@@ -1642,7 +1642,20 @@ const App = () => {
   };
 
   const generateWithAi = async (params: any) => {
-    return await callAiEndpoint(params, abortControllerRef.current?.signal ?? null);
+    const modeInfo = MODES[currentMode];
+    const enriched = {
+      ...params,
+      telemetry: {
+        actionType: params?.actionType ?? 'expand',
+        contextRole: globalRole,
+        modeKey: currentMode,
+        modeLabel: modeInfo?.label ?? currentMode,
+        mapId: currentMindmapId,
+        ...(params?.telemetry ?? {}),
+      },
+    };
+    delete enriched.actionType;
+    return await callAiEndpoint(enriched, abortControllerRef.current?.signal ?? null);
   };
 
   const fetchKeywords = async (concepts, includeDetail = false, parentContextLabels = []) => {
